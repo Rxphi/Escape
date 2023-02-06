@@ -5,26 +5,39 @@ public class BoardState {
 	public final int WIDTH;
 	public final int HEIGHT;
 	public Set<Tile> tiles;
+	public Tile mainTile;
+	// escape is always on the left side
+	public final int escapeStart; // inclusive
+	public final int escapeEnd; // inclusive
+	public final int escapeSize;
+	
 	
 	// for later
 	// neighboring boardStates
 	
-	BoardState(int width, int height) {
+	BoardState(int width, int height, int escapeStart, int escapeEnd) {
 		if (width < 1 || height < 1) {
 			throw new IllegalArgumentException("The width and the height of the board must be greater than 0.");
+		} else if (escapeStart < 0) {
+			throw new IllegalArgumentException("EscapeStart is out of bound.");
+		} else if (escapeEnd >= height) {
+			throw new IllegalArgumentException("EscapeEnd is out of bound.");
 		}
+		
 		this.WIDTH = width;
 		this.HEIGHT = height;
-		
+		this.escapeStart = escapeStart;
+		this.escapeEnd = escapeEnd;
+		this.escapeSize = escapeEnd - escapeStart + 1;
 		tiles = new HashSet<Tile>();
 	}
 	
-	BoardState(int width, int height, Set<Tile> tiles) {
-		this.WIDTH = width;
-		this.HEIGHT = height;
-		this.tiles = tiles;
+	// if true -> GAME OVER
+	public boolean escaped() {
+		return mainTile.j == 0 && mainTile.i >= escapeStart && mainTile.i + mainTile.H - 1<= escapeEnd;
 	}
 	
+	// The first tile that gets added is the main tile
 	public void addTile(Tile t) throws IllegalArgumentException {
 		// The new tile should not overlap over the board
 		for (int[] corner : t.getCorners()) {
@@ -38,8 +51,12 @@ public class BoardState {
 		if (overlaps) {
 			throw new IllegalArgumentException("Couldn't add tile " + t + " because of an overlap with an existing tile.");
 		} else {
-			System.out.println("No overlap detected! Added " + t);
 			tiles.add(t);
+		}
+		
+		// main tile
+		if (mainTile == null) {
+			mainTile = t;
 		}
 	}
 	
@@ -181,7 +198,11 @@ public class BoardState {
 		}
 		out += "\n";
 		
-		for (boolean[] row : hasTile) {
+		System.out.println(escapeStart + " " + escapeEnd);
+		for (int i = 0; i < HEIGHT; i++) {
+			boolean[] row = hasTile[i];
+			
+			out += escapeStart <= i && i <= escapeEnd ? "  " : "| ";
 			for (boolean fill : row) {
 				out += fill ? "# " : "0 ";
 			}
