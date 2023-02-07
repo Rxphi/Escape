@@ -4,13 +4,15 @@ import java.util.stream.Collectors;
 public class BoardState {
 	public final int WIDTH;
 	public final int HEIGHT;
-	public Set<Tile> tiles;
+	public List<Tile> tiles;
 	public Tile mainTile;
 	// escape is always on the left side
 	public final int escapeStart; // inclusive
 	public final int escapeEnd; // inclusive
-	public final int escapeSize;
 	
+	// for backtracking
+	public BoardState prev;
+	public int depth;
 	
 	// for later
 	// neighboring boardStates
@@ -28,8 +30,28 @@ public class BoardState {
 		this.HEIGHT = height;
 		this.escapeStart = escapeStart;
 		this.escapeEnd = escapeEnd;
-		this.escapeSize = escapeEnd - escapeStart + 1;
-		tiles = new HashSet<Tile>();
+		tiles = new LinkedList<Tile>();
+	}
+	
+	public BoardState copy () {
+		BoardState out = new BoardState(WIDTH, HEIGHT, escapeStart, escapeEnd);
+		for (Tile t : tiles) {
+			out.addTile(t.copy());
+		}
+		return out;
+		
+	}
+	
+	@Override
+	public boolean equals(Object other) {
+		if (!(other instanceof BoardState)) {
+			return false;
+		}
+		BoardState o = (BoardState) other;
+		if (WIDTH != o.WIDTH || HEIGHT != o.HEIGHT || escapeStart != o.escapeStart || escapeEnd != o.escapeEnd) {
+			return false;
+		}
+		return tiles.equals(o.tiles);
 	}
 	
 	// if true -> GAME OVER
@@ -181,12 +203,12 @@ public class BoardState {
 	}
 	
 	public String toString() {
-		boolean[][] hasTile = new boolean[HEIGHT][WIDTH];
+		char[][] hasTile = new char[HEIGHT][WIDTH];
 		
 		for (Tile t : tiles) {
 			for (int di = 0; di < t.H; di++) {
 				for (int dj = 0; dj < t.W; dj++) {
-					hasTile[t.i+di][t.j+dj] = true;
+					hasTile[t.i+di][t.j+dj] = t == mainTile ? 'M' : '#';
 				}
 			}
 		}
@@ -198,13 +220,17 @@ public class BoardState {
 		}
 		out += "\n";
 		
-		System.out.println(escapeStart + " " + escapeEnd);
 		for (int i = 0; i < HEIGHT; i++) {
-			boolean[] row = hasTile[i];
+			char[] row = hasTile[i];
 			
 			out += escapeStart <= i && i <= escapeEnd ? "  " : "| ";
-			for (boolean fill : row) {
-				out += fill ? "# " : "0 ";
+			for (char fill : row) {
+				if (fill == '\u0000') {
+					out += "  ";
+				} else {
+					out += fill + " ";
+				}
+				
 			}
 			out += "|\n";
 		}
@@ -216,5 +242,39 @@ public class BoardState {
 		out += "\n";
 		
 		return out;
+	}
+
+	public static BoardState defaultBoardI() {
+		BoardState board = new BoardState(5, 4, 1, 2);
+		
+		board.addTile(new Tile(1, 3, 2, 2)); // main tile
+		board.addTile(new Tile(0, 3, 2, 1));
+		board.addTile(new Tile(3, 3, 2, 1));
+		board.addTile(new Tile(0, 1, 2, 1));
+		board.addTile(new Tile(3, 1, 2, 1));
+		board.addTile(new Tile(1, 2, 1, 2));
+		board.addTile(new Tile(1, 1, 1, 1));
+		board.addTile(new Tile(2, 1, 1, 1));
+		board.addTile(new Tile(1, 0, 1, 1));
+		board.addTile(new Tile(2, 0, 1, 1));
+		
+		return board;
+	}
+	
+	public static BoardState defaultBoardII() {
+		BoardState board = new BoardState(5, 4, 1, 2);
+		
+		board.addTile(new Tile(1, 3, 2, 2)); // main tile
+		board.addTile(new Tile(0, 3, 2, 1));
+		board.addTile(new Tile(3, 3, 2, 1));
+		board.addTile(new Tile(0, 1, 2, 1));
+		board.addTile(new Tile(3, 1, 2, 1));
+		board.addTile(new Tile(1, 2, 1, 2));
+		board.addTile(new Tile(1, 1, 1, 1));
+		board.addTile(new Tile(2, 1, 1, 1));
+		board.addTile(new Tile(1, 0, 1, 1));
+		board.addTile(new Tile(2, 0, 1, 1));
+		
+		return board;
 	}
 }

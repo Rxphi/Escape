@@ -5,15 +5,15 @@ class BoardStateTest {
 
 	@Test 
 	void validBoardTestI() {
-		assertThrows(IllegalArgumentException.class, () -> new BoardState(-1, 0));
-		assertThrows(IllegalArgumentException.class, () -> new BoardState(-1, -1));
-		assertThrows(IllegalArgumentException.class, () -> new BoardState(0, -1));
-		assertThrows(IllegalArgumentException.class, () -> new BoardState(0, 5));
-		assertThrows(IllegalArgumentException.class, () -> new BoardState(5, 0));
-		assertDoesNotThrow(() -> new BoardState(1, 1));
-		assertDoesNotThrow(() -> new BoardState(1, 2));
-		assertDoesNotThrow(() -> new BoardState(2, 1));
-		assertDoesNotThrow(() -> new BoardState(420, 69));
+		assertThrows(IllegalArgumentException.class, () -> new BoardState(-1, 0, 1, 1));
+		assertThrows(IllegalArgumentException.class, () -> new BoardState(-1, -1, 1, 1));
+		assertThrows(IllegalArgumentException.class, () -> new BoardState(0, -1, 1, 1));
+		assertThrows(IllegalArgumentException.class, () -> new BoardState(0, 5, 1, 1));
+		assertThrows(IllegalArgumentException.class, () -> new BoardState(5, 0, 1, 1));
+		assertDoesNotThrow(() -> new BoardState(1, 1, 0, 0));
+		assertDoesNotThrow(() -> new BoardState(1, 2, 1, 1));
+		assertDoesNotThrow(() -> new BoardState(2, 1, 0, 0));
+		assertDoesNotThrow(() -> new BoardState(420, 69, 1, 1));
 	}
 	
 	@Test
@@ -60,7 +60,7 @@ class BoardStateTest {
 	}
 	
 	BoardState defaultBoard() {
-		return new BoardState(20, 10);
+		return new BoardState(20, 10, 3, 6);
 	}
 
 }

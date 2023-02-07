@@ -20,9 +20,17 @@ public class Tile {
 		this.H = h;
 	}
 	
-	// probably unecessary, we could just use the constructor :)
-	public static Tile create(int i, int j, int w, int h) {
-		return new Tile(i, j, w, h);
+	public Tile copy() {
+		return new Tile(i, j, W, H);
+	}
+	
+	@Override
+	public boolean equals(Object other) {
+		if (!(other instanceof Tile)) {
+			return false;
+		}
+		Tile o = (Tile) other;
+		return o.i == i && o.j == j && o.W == W && o.H == H;
 	}
 	
 	public static boolean overlap(Tile t1, Tile t2) {
